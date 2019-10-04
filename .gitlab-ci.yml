@@ -1,0 +1,124 @@
+stages:
+  - prepare
+  - test
+
+centos-7-dist-build:
+  image: centos:7
+  stage: test
+  script: |
+    mkdir suricata
+    cd suricata
+    tar zxvf ../suricata-*.tar.gz --strip-components=1
+
+fedora-31:
+  image: fedora:31
+  stage: prepare
+  before_script:
+    - |
+      dnf -y install \
+        autoconf \
+        automake \
+        cargo \
+        ccache \
+        diffutils \
+        file-devel \
+        gcc \
+        gcc-c++ \
+        git \
+        jansson-devel \
+        jq \
+        lua-devel \
+        libtool \
+        libyaml-devel \
+        libnfnetlink-devel \
+        libnetfilter_queue-devel \
+        libnet-devel \
+        libcap-ng-devel \
+        libevent-devel \
+        libmaxminddb-devel \
+        libpcap-devel \
+        libtool \
+        lz4-devel \
+        make \
+        nspr-devel \
+        nss-devel \
+        nss-softokn-devel \
+        pcre-devel \
+        pkgconfig \
+        python3-devel \
+        python3-yaml \
+        which \
+        zlib-devel      
+    - git clone https://github.com/OISF/suricata.git
+    - (cd suricata && git clone https://github.com/OISF/libhtp.git)
+    - |
+      (cd suricata/suricata-update && curl -L \
+          https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+          tar zxvf - --strip-components=1)
+    - cd suricata
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make
+    - make install
+    - make install-conf
+    - make install-rules
+    - make dist
+    - mv suricata-*.tar.gz ..
+  artifacts:
+    paths:
+      - suricata-5.0.0-dev.tar.gz
+
+debian-9:
+  image: debian:9
+  stage: test
+  before_script:
+    - apt update
+    - |
+      apt -y install \
+        automake \
+        autoconf \
+        build-essential \
+        ccache \
+        curl \
+        git-core \
+        jq \
+        libpcre3 \
+        libpcre3-dbg \
+        libpcre3-dev \
+        libpcap-dev   \
+        libnet1-dev \
+        libyaml-0-2 \
+        libyaml-dev \
+        libcap-ng-dev \
+        libcap-ng0 \
+        libmagic-dev \
+        libjansson-dev \
+        libnss3-dev \
+        libgeoip-dev \
+        liblua5.1-dev \
+        libhiredis-dev \
+        libevent-dev \
+        libtool \
+        m4 \
+        make \
+        python-yaml \
+        pkg-config \
+        zlib1g \
+        zlib1g-dev
+    - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable -y
+    - source $HOME/.cargo/env
+    - git clone https://github.com/OISF/suricata.git
+    - (cd suricata && git clone https://github.com/OISF/libhtp.git)
+    - |
+      (cd suricata/suricata-update && curl -L \
+          https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+          tar zxvf - --strip-components=1)
+    - cd suricata
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make
+    - make install
+    - make install-conf
+    - LD_LIBRARY_PATH=/usr/local/lib make install-rules

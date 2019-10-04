@@ -1,0 +1,117 @@
+name: build
+
+on: [push]
+
+jobs:
+
+  cocci:
+    name: Coccinelle Check
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt -y install \
+                libpcre3 \
+                libpcre3-dev \
+                build-essential \
+                autoconf \
+                automake \
+                libtool \
+                libpcap-dev \
+                libnet1-dev \
+                libyaml-0-2 \
+                libyaml-dev \
+                zlib1g \
+                zlib1g-dev \
+                libcap-ng-dev \
+                libcap-ng0 \
+                make \
+                libmagic-dev \
+                libnetfilter-queue-dev \
+                libnetfilter-queue1 \
+                libnfnetlink-dev \
+                libnfnetlink0 \
+                libhiredis-dev \
+                libjansson-dev \
+                libevent-dev \
+                libevent-pthreads-2.1.6 \
+                libjansson-dev \
+                software-properties-common
+      - name: Install Coccinelle
+        run: sudo add-apt-repository -y ppa:npalix/coccinelle
+      - run: sudo apt -y install coccinelle
+      - run: git clone https://github.com/OISF/suricata-verify.git
+      - run: git clone https://github.com/OISF/suricata.git
+      - run: git clone https://github.com/OISF/libhtp.git
+        working-directory: ./suricata
+      - run: |
+          curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+            tar zxvf - --strip-components=1
+        working-directory: ./suricata
+      - run: ./autogen.sh
+        working-directory: ./suricata
+      - run: |
+          ./configure --enable-unittests \
+            --enable-hiredis --enable-coccinelle
+        working-directory: ./suricata
+      - run: make
+        working-directory: ./suricata
+      - run: make check
+        working-directory: ./suricata
+      - run: ../suricata-verify/run.py
+        working-directory: ./suricata
+      - run: sudo make install
+        working-directory: ./suricata
+      - run: sudo make install-conf
+        working-directory: ./suricata
+
+  macos:
+    name: MacOS Build
+    runs-on: macos-latest
+    steps:
+      - run: |
+          brew install \
+          autoconf \
+          automake \
+          curl \
+          hiredis \
+          jansson \
+          jq \
+          libmagic \
+          libnet \
+          libtool \
+          libyaml \
+          lua \
+          nss \
+          nspr \
+          pcre \
+          pkg-config \
+          rust \
+          xz
+      - run: pip install PyYAML
+      - run: git clone https://github.com/OISF/suricata-verify.git
+      - run: git clone https://github.com/OISF/suricata.git
+      - run: git clone https://github.com/OISF/libhtp.git
+        working-directory: ./suricata
+      - run: |
+          curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+            tar zxvf - --strip-components=1
+        working-directory: ./suricata
+      - run: ./autogen.sh
+        working-directory: ./suricata
+      - run: |
+          ./configure --enable-unittests \
+            --enable-hiredis \
+            --enable-lua
+        working-directory: ./suricata
+      - run: make
+        working-directory: ./suricata
+      - run: make check
+        working-directory: ./suricata
+      - run: ../suricata-verify/run.py
+        working-directory: ./suricata
+      - run: make install
+        working-directory: ./suricata
+      - run: make install-conf
+        working-directory: ./suricata

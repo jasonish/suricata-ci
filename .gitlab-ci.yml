@@ -2,6 +2,9 @@ stages:
   - build
   - test
 
+variables:
+  SURICATA_REPO: "https://github.com/OISF/suricata.git"
+
 centos-7:
   image: centos:7
   stage: test
@@ -124,7 +127,7 @@ fedora-31:
         python3-yaml \
         which \
         zlib-devel      
-    - git clone https://github.com/OISF/suricata.git
+    - git clone "${SURICATA_REPO}"
     - (cd suricata && git clone https://github.com/OISF/libhtp.git)
     - |
       (cd suricata/suricata-update && curl -L \

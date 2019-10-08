@@ -4,6 +4,7 @@
 
 centos-7-dist-build:
   image: centos:7
+  stage: test
   needs: ["fedora-31"]
   script: |
     mkdir suricata
@@ -12,6 +13,7 @@ centos-7-dist-build:
 
 fedora-31:
   image: fedora:31
+  stage: build
   before_script:
     - |
       dnf -y install \
@@ -70,6 +72,7 @@ fedora-31:
 
 debian-9:
   image: debian:9
+  stage: build
   before_script:
     - apt update
     - |

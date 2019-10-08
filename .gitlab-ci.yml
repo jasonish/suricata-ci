@@ -13,7 +13,7 @@ centos-7-dist-build:
 fedora-31:
   image: fedora:31
   stage: build-dist
-  needs: dist
+  needs: [dist]
   before_script:
     - |
       dnf -y install \

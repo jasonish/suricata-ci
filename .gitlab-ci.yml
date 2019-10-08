@@ -73,6 +73,7 @@ fedora-31:
 debian-9:
   image: debian:9
   stage: build
+  needs: [fedora-31]
   before_script:
     - apt update
     - |

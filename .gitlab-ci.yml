@@ -8,7 +8,7 @@ centos-7:
   needs: ["fedora-31"]
   before_script:
     - |
-      yum -install install \
+      yum -y install \
         autoconf \
         automake \
         diffutils \

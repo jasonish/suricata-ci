@@ -1,6 +1,6 @@
-# stages:
-#   - prepare
-#   - test
+stages:
+  - build
+  - test
 
 centos-7-dist-build:
   image: centos:7
@@ -73,7 +73,7 @@ fedora-31:
 debian-9:
   image: debian:9
   stage: build
-  needs: ["fedora-31"]
+  needs: []
   before_script:
     - apt update
     - |

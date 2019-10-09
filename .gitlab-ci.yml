@@ -195,4 +195,5 @@ debian-9:
     - make
     - make install
     - make install-conf
-    - LD_LIBRARY_PATH=/usr/local/lib make install-rules
+    - ldconfig
+    - make install-rules

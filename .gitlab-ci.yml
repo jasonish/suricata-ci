@@ -1,13 +1,13 @@
 stages:
+  - dist
   - build
-  - test
 
 variables:
   SURICATA_REPO: "https://github.com/OISF/suricata.git"
 
 centos-7:
   image: centos:7
-  stage: test
+  stage: build
   needs: ["fedora-31"]
   before_script:
     - |
@@ -55,7 +55,7 @@ centos-7:
 
 centos:6:
   image: centos:6
-  stage: test
+  stage: build
   needs: ["fedora-31"]
   before_script:
     - yum -y install epel-release
@@ -90,7 +90,7 @@ centos:6:
 # Fedora 31 build. Also create a tar.gz distribution.
 fedora-31:
   image: fedora:31
-  stage: build
+  stage: dist
   before_script:
     - |
       dnf -y install \
@@ -149,7 +149,7 @@ fedora-31:
 
 debian-9:
   image: debian:9
-  stage: test
+  stage: build
   needs: ["fedora-31"]
   before_script:
     - apt update

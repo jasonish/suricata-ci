@@ -5,6 +5,66 @@ stages:
 variables:
   SURICATA_REPO: "https://github.com/OISF/suricata.git"
 
+# Fedora 31 build. Also create a tar.gz distribution for use by the
+# other builds.
+fedora-31:
+  image: fedora:31
+  stage: dist
+  before_script:
+    - |
+      dnf -y install \
+        autoconf \
+        automake \
+        cargo \
+        ccache \
+        diffutils \
+        file-devel \
+        gcc \
+        gcc-c++ \
+        git \
+        jansson-devel \
+        jq \
+        libtool \
+        libyaml-devel \
+        libnfnetlink-devel \
+        libnetfilter_queue-devel \
+        libnet-devel \
+        libcap-ng-devel \
+        libevent-devel \
+        libmaxminddb-devel \
+        libpcap-devel \
+        libtool \
+        lua-devel \
+        lz4-devel \
+        make \
+        nspr-devel \
+        nss-devel \
+        nss-softokn-devel \
+        pcre-devel \
+        pkgconfig \
+        python3-yaml \
+        which \
+        zlib-devel      
+    - git clone "${SURICATA_REPO}"
+    - (cd suricata && git clone https://github.com/OISF/libhtp.git)
+    - |
+      (cd suricata/suricata-update && curl -L \
+          https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+          tar zxvf - --strip-components=1)
+    - cd suricata
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make
+    - make install
+    - make install-conf
+    - make install-rules
+    - make dist
+    - mv suricata-*.tar.gz ..
+  artifacts:
+    paths:
+      - suricata-5.0.0-dev.tar.gz
+
 centos-7:
   image: centos:7
   stage: build
@@ -37,7 +97,6 @@ centos-7:
         nss-devel \
         pcre-devel \
         pkgconfig \
-        python3-devel \
         python3-yaml \
         which \
         zlib-devel
@@ -72,7 +131,6 @@ centos:6:
         libpcap-devel \
         nss-devel \
         pcre-devel \
-        python-yaml \
         python34-yaml \
         which \
         zlib-devel
@@ -86,66 +144,10 @@ centos:6:
     - make
     - make install
     - make install-conf
-
-# Fedora 31 build. Also create a tar.gz distribution.
-fedora-31:
-  image: fedora:31
-  stage: dist
-  before_script:
-    - |
-      dnf -y install \
-        autoconf \
-        automake \
-        cargo \
-        ccache \
-        diffutils \
-        file-devel \
-        gcc \
-        gcc-c++ \
-        git \
-        jansson-devel \
-        jq \
-        lua-devel \
-        libtool \
-        libyaml-devel \
-        libnfnetlink-devel \
-        libnetfilter_queue-devel \
-        libnet-devel \
-        libcap-ng-devel \
-        libevent-devel \
-        libmaxminddb-devel \
-        libpcap-devel \
-        libtool \
-        lz4-devel \
-        make \
-        nspr-devel \
-        nss-devel \
-        nss-softokn-devel \
-        pcre-devel \
-        pkgconfig \
-        python3-devel \
-        python3-yaml \
-        which \
-        zlib-devel      
-    - git clone "${SURICATA_REPO}"
-    - (cd suricata && git clone https://github.com/OISF/libhtp.git)
-    - |
-      (cd suricata/suricata-update && curl -L \
-          https://github.com/OISF/suricata-update/archive/master.tar.gz | \
-          tar zxvf - --strip-components=1)
-    - cd suricata
-  script:
-    - ./autogen.sh
-    - ./configure
-    - make
-    - make install
-    - make install-conf
     - make install-rules
-    - make dist
-    - mv suricata-*.tar.gz ..
-  artifacts:
-    paths:
-      - suricata-5.0.0-dev.tar.gz
+  after_script:
+    - test -e /usr/local/share/suricata/classification.config
+    - test -e /usr/local/share/suricata/reference.config
 
 debian-9:
   image: debian:9
@@ -155,12 +157,7 @@ debian-9:
     - apt update
     - |
       apt -y install \
-        automake \
-        autoconf \
         build-essential \
-        ccache \
-        curl \
-        git-core \
         jq \
         libpcre3 \
         libpcre3-dbg \
@@ -195,5 +192,4 @@ debian-9:
     - make
     - make install
     - make install-conf
-    - ldconfig
     - make install-rules

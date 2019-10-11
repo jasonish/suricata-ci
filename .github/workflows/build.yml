@@ -16,14 +16,14 @@ jobs:
           curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
             tar zxvf - --strip-components=1
         working-directory: ./suricata/suricata-update
-      - run: ../suricata-builders/docker-fedora-31/run.sh
+      - run: ../suricata-builders/docker-centos-6/run.sh
         working-directory: ./suricata
 
-  # A Fedora 31 build using a container.
-  fedora-31:
-    name: "Fedora 31"
+  # A Fedora 30 build using a container.
+  fedora-30:
+    name: "Fedora 30"
     runs-on: ubuntu-latest
-    container: fedora:31
+    container: fedora:30
     steps:
       - run: |
           dnf -y install \

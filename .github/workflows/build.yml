@@ -77,7 +77,7 @@ jobs:
         working-directory: ./suricata
       - run: make check
         working-directory: ./suricata
-      - run: ../suricata-verify/run.py
+      - run: python3 ../suricata-verify/run.py
         working-directory: ./suricata
       - run: sudo make install
         working-directory: ./suricata

@@ -4,6 +4,86 @@ on: [push]
 
 jobs:
 
+  # A test build using https://github.com/jasonish/suricata-builders.
+  suricata-builders-centos-6:
+    name: "Suricata Builders - CentOS 6"
+    runs-on: ubuntu-latest
+    steps:
+      - run: git clone https://github.com/jasonish/suricata-builders.git
+      - run: git clone https://github.com/OISF/suricata.git
+      - run: git clone https://github.com/OISF/libhtp.git suricata/libhtp
+      - run: |
+          curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+            tar zxvf - --strip-components=1
+        working-directory: ./suricata/suricata-update
+      - run: ../suricata-builders/docker-fedora-31/run.sh
+        working-directory: ./suricata
+
+  # A Fedora 31 build using a container.
+  fedora-31:
+    name: "Fedora 31"
+    runs-on: ubuntu-latest
+    container: fedora:31
+    steps:
+      - run: |
+          dnf -y install \
+                autoconf \
+                automake \
+                cargo \
+                ccache \
+                diffutils \
+                file-devel \
+                gcc \
+                gcc-c++ \
+                git \
+                jansson-devel \
+                jq \
+                lua-devel \
+                libtool \
+                libyaml-devel \
+                libnfnetlink-devel \
+                libnetfilter_queue-devel \
+                libnet-devel \
+                libcap-ng-devel \
+                libevent-devel \
+                libmaxminddb-devel \
+                libpcap-devel \
+                libtool \
+                lz4-devel \
+                make \
+                nspr-devel \
+                nss-devel \
+                nss-softokn-devel \
+                pcre-devel \
+                pkgconfig \
+                python3-yaml \
+                sudo \
+                which \
+                zlib-devel
+      - run: git clone https://github.com/OISF/suricata-verify.git
+      - run: git clone https://github.com/OISF/suricata.git
+      - run: git clone https://github.com/OISF/libhtp.git
+        working-directory: ./suricata
+      - run: |
+          curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+            tar zxvf - --strip-components=1
+        working-directory: ./suricata/suricata-update
+      - run: ./autogen.sh
+        working-directory: ./suricata
+      - run: |
+          ./configure --enable-unittests
+        working-directory: ./suricata
+      - run: make
+        working-directory: ./suricata
+      - run: make check
+        working-directory: ./suricata
+      - run: ../suricata-verify/run.py
+        working-directory: ./suricata
+      - run: sudo make install
+        working-directory: ./suricata
+      - run: sudo make install-conf
+        working-directory: ./suricata
+
   cocci:
     name: Coccinelle Check
     runs-on: ubuntu-18.04
@@ -48,7 +128,7 @@ jobs:
       - run: |
           curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
             tar zxvf - --strip-components=1
-        working-directory: ./suricata
+        working-directory: ./suricata/suricata-update
       - run: ./autogen.sh
         working-directory: ./suricata
       - run: |
@@ -97,7 +177,7 @@ jobs:
       - run: |
           curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
             tar zxvf - --strip-components=1
-        working-directory: ./suricata
+        working-directory: ./suricata/suricata-update
       - run: ./autogen.sh
         working-directory: ./suricata
       - run: |

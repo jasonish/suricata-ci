@@ -1,0 +1,17 @@
+name: Docker Builds
+
+on: [push]
+
+jobs:
+
+  fedora:31:
+    name: Fedora 31
+    runs-on: ubuntu-latest
+    steps:
+      - run: git clone https://github.com/jasonish/suricata-builders.git
+      - run: git clone https://github.com/OISF/suricata.git
+      - run: git clone https://github.com/OISF/libhtp.git suricata/libhtp
+      - run: ../suricata-builders/docker-fedora-31/run.sh
+        working-directory: ./suricata
+
+      

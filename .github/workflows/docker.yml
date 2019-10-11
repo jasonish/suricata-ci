@@ -11,6 +11,10 @@ jobs:
       - run: git clone https://github.com/jasonish/suricata-builders.git
       - run: git clone https://github.com/OISF/suricata.git
       - run: git clone https://github.com/OISF/libhtp.git suricata/libhtp
+      - run: |
+          curl -L https://github.com/OISF/suricata-update/archive/master.tar.gz | \
+            tar zxvf - --strip-components=1
+        working-directory: ./suricata/suricata-update
       - run: ../suricata-builders/docker-fedora-31/run.sh
         working-directory: ./suricata
 

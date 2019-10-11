@@ -18,4 +18,11 @@ jobs:
       - run: ../suricata-builders/docker-fedora-31/run.sh
         working-directory: ./suricata
 
+  test-container:
+    name: Testing Docker Build
+    container: fedora:30
+    steps:
+      - run: cat /etc/os-release
+      - run: dnf -y install yum
+
       

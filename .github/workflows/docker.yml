@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
 
-  fedora:31:
+  fedora-31:
     name: Fedora 31
     runs-on: ubuntu-latest
     steps:

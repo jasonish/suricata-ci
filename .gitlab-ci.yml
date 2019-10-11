@@ -158,6 +158,7 @@ debian-9:
     - |
       apt -y install \
         build-essential \
+        curl \
         jq \
         libpcre3 \
         libpcre3-dbg \
